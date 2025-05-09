@@ -19,8 +19,9 @@ public:
     HashTable() {
         keys = new int[TABLE_SIZE];
         values = new int[TABLE_SIZE];
-        occupied = new bool[TABLE_SIZE]{false};
-
+        occupied = new bool[TABLE_SIZE];
+        for (int i = 0; i < TABLE_SIZE; i++)
+            occupied[i] = false;
     }
 
     ~HashTable() {
