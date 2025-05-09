@@ -4,7 +4,8 @@
 
 using namespace std;
 
-const unsigned int TABLE_SIZE = 200000003;  // ~268 million entries, power of 2
+//const unsigned int TABLE_SIZE = 200000003;  // ~268 million entries, power of 2
+const unsigned int TABLE_SIZE = 1 << 28;  // ~268 million entries, power of 2
 const unsigned int MASK = TABLE_SIZE - 1;
 
 struct HashEntry {
@@ -32,13 +33,13 @@ public:
     }
 
     inline unsigned int hashFunction(unsigned int key) {
-        return key % TABLE_SIZE; // since TABLE_SIZE is power of 2
+        return key & MASK; // since TABLE_SIZE is power of 2
     }
 
     void insert(unsigned int key, int value) {
         unsigned int idx = hashFunction(key);
         while (status[idx] && table[idx].key != key) {
-            idx = (idx + 1) % TABLE_SIZE;
+            idx = (idx + 1) & MASK;
         }
         table[idx].key = key;
         table[idx].value = value;
@@ -53,7 +54,7 @@ public:
                 value_out = table[idx].value;
                 return true;
             }
-            idx = (idx + 1) % TABLE_SIZE;
+            idx = (idx + 1) & MASK;
             if (idx == start) break; // full cycle
         }
         return false;
@@ -67,7 +68,7 @@ public:
                 table[idx].value = new_value;
                 return true;
             }
-            idx = (idx + 1) % TABLE_SIZE;
+            idx = (idx + 1) & MASK;
             if (idx == start) break;
         }
         return false;
