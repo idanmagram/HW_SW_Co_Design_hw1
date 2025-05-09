@@ -84,7 +84,7 @@ int main() {
     std::cout << "Insertions done.\n";
 
     std::cout << "Performing some read/write operations...\n";
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         int key = rand() % NUM_INSERTS;
         int val;
         if (ht.get(key, val)) {

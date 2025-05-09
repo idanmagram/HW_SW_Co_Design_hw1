@@ -90,7 +90,7 @@ int main() {
 
     cout << "Reading & updating 10 random keys...\n";
     srand(time(NULL));
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         unsigned int key = rand() % NUM_INSERTS;
         int value;
         if (ht.get(key, value)) {
