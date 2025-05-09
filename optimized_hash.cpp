@@ -33,13 +33,13 @@ public:
     }
 
     inline unsigned int hashFunction(unsigned int key) {
-        return key & MASK; // since TABLE_SIZE is power of 2
+        return key % TABLE_SIZE; // since TABLE_SIZE is power of 2
     }
 
     void insert(unsigned int key, int value) {
         unsigned int idx = hashFunction(key);
         while (status[idx] && table[idx].key != key) {
-            idx = (idx + 1) & MASK;
+            idx = (idx + 1) % TABLE_SIZE;
         }
         table[idx].key = key;
         table[idx].value = value;
@@ -54,7 +54,7 @@ public:
                 value_out = table[idx].value;
                 return true;
             }
-            idx = (idx + 1) & MASK;
+            idx = (idx + 1) % TABLE_SIZE;
             if (idx == start) break; // full cycle
         }
         return false;
@@ -68,7 +68,7 @@ public:
                 table[idx].value = new_value;
                 return true;
             }
-            idx = (idx + 1) & MASK;
+            idx = (idx + 1) % TABLE_SIZE;
             if (idx == start) break;
         }
         return false;
