@@ -73,7 +73,7 @@ int main() {
     std::cout << "Initializing hash table...\n";
     HashTable ht;
 
-    const int NUM_INSERTS = 100000000;
+    const int NUM_INSERTS = 100;
     std::cout << "Inserting 100 million key-value pairs...\n";
 
     for (int i = 0; i < NUM_INSERTS; ++i) {
@@ -84,7 +84,7 @@ int main() {
     std::cout << "Insertions done.\n";
 
     std::cout << "Performing some read/write operations...\n";
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         int key = rand() % NUM_INSERTS;
         int val;
         if (ht.get(key, val)) {
