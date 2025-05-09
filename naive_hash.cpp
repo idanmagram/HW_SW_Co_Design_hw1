@@ -3,6 +3,7 @@
 #include <ctime>
 
 const int TABLE_SIZE = 200000003; // A large prime number > 100 million for low collision rate
+//const int TABLE_SIZE =   1000000;
 
 class HashTable {
 private:
