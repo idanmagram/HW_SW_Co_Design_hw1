@@ -2,54 +2,53 @@
 #include <cstdlib>
 #include <ctime>
 
-const int TABLE_SIZE = 200000003; // A large prime number > 100 million for low collision rate
-//const int TABLE_SIZE =   1000000;
+const int TABLE_SIZE = 200000003; // Large prime number > 100 million
+
+struct HashEntry {
+    int key;
+    int value;
+    bool occupied;
+};
 
 class HashTable {
 private:
-    int* keys;
-    int* values;
-    bool* occupied;
+    HashEntry* table;
 
-    int hash(int key) {
+    int hash(int key) const {
         return key % TABLE_SIZE;
     }
 
 public:
     HashTable() {
-        keys = new int[TABLE_SIZE];
-        values = new int[TABLE_SIZE];
-        occupied = new bool[TABLE_SIZE];
-        for (int i = 0; i < TABLE_SIZE; i++)
-            occupied[i] = false;
+        table = new HashEntry[TABLE_SIZE];
+        for (int i = 0; i < TABLE_SIZE; ++i)
+            table[i].occupied = false;
     }
 
     ~HashTable() {
-        delete[] keys;
-        delete[] values;
-        delete[] occupied;
+        delete[] table;
     }
 
     void insert(int key, int value) {
         int idx = hash(key);
-        while (occupied[idx] && keys[idx] != key) {
-            idx = (idx + 1) % TABLE_SIZE; // Linear probing
+        while (table[idx].occupied && table[idx].key != key) {
+            idx = (idx + 1) % TABLE_SIZE;
         }
-        keys[idx] = key;
-        values[idx] = value;
-        occupied[idx] = true;
+        table[idx].key = key;
+        table[idx].value = value;
+        table[idx].occupied = true;
     }
 
-    bool get(int key, int &value) {
+    bool get(int key, int& value) const {
         int idx = hash(key);
         int start = idx;
-        while (occupied[idx]) {
-            if (keys[idx] == key) {
-                value = values[idx];
+        while (table[idx].occupied) {
+            if (table[idx].key == key) {
+                value = table[idx].value;
                 return true;
             }
             idx = (idx + 1) % TABLE_SIZE;
-            if (idx == start) break; // Full cycle
+            if (idx == start) break;
         }
         return false;
     }
@@ -57,15 +56,14 @@ public:
     void update(int key, int newValue) {
         int idx = hash(key);
         int start = idx;
-        while (occupied[idx]) {
-            if (keys[idx] == key) {
-                values[idx] = newValue;
+        while (table[idx].occupied) {
+            if (table[idx].key == key) {
+                table[idx].value = newValue;
                 return;
             }
             idx = (idx + 1) % TABLE_SIZE;
             if (idx == start) break;
         }
-        // Not found: do nothing (or could insert)
     }
 };
 
@@ -77,7 +75,7 @@ int main() {
     std::cout << "Inserting 100 million key-value pairs...\n";
 
     for (int i = 0; i < NUM_INSERTS; ++i) {
-        ht.insert(i, i * 2); // value = 2 * key
+        ht.insert(i, i * 2);
         if (i % 10000000 == 0) std::cout << i / 1000000 << " million inserted...\n";
     }
 
