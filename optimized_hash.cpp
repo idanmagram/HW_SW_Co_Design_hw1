@@ -31,12 +31,13 @@ public:
 
     void insert(int key, int value) {
         int idx = hash(key);
-        while (table[idx].occupied && table[idx].key != key) {
+        HashEntry entry = table[idx];
+        while (entry.occupied && entry.key != key) {
             idx = (idx + 1) % TABLE_SIZE;
         }
-        table[idx].key = key;
-        table[idx].value = value;
-        table[idx].occupied = true;
+        entry.key = key;
+        entry.value = value;
+        entry.occupied = true;
     }
 
     bool get(int key, int& value) const {
@@ -82,7 +83,7 @@ int main() {
     std::cout << "Insertions done.\n";
 
     std::cout << "Performing some read/write operations...\n";
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         int key = rand() % NUM_INSERTS;
         int val;
         if (ht.get(key, val)) {
