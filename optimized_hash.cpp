@@ -4,9 +4,9 @@
 
 using namespace std;
 
-//const unsigned int TABLE_SIZE = 200000003;  // ~268 million entries, power of 2
-const unsigned int TABLE_SIZE = 1 << 28;  // ~268 million entries, power of 2
+const unsigned int TABLE_SIZE = 1 << 28;  // 268,435,456 slots
 const unsigned int MASK = TABLE_SIZE - 1;
+const unsigned int EMPTY_KEY = 0xFFFFFFFF; // A key that will never be used
 
 struct HashEntry {
     unsigned int key;
@@ -16,45 +16,41 @@ struct HashEntry {
 class HashTable {
 private:
     HashEntry* table;
-    char* status; // 0 = empty, 1 = filled
 
 public:
     HashTable() {
         table = new HashEntry[TABLE_SIZE];
-        status = new char[TABLE_SIZE];
-        for (unsigned int i = 0; i < TABLE_SIZE; i++) {
-            status[i] = 0; // mark all slots empty
+        for (unsigned int i = 0; i < TABLE_SIZE; ++i) {
+            table[i].key = EMPTY_KEY;  // mark as empty
         }
     }
 
     ~HashTable() {
         delete[] table;
-        delete[] status;
     }
 
-    inline unsigned int hashFunction(unsigned int key) {
-        return key % TABLE_SIZE; // since TABLE_SIZE is power of 2
+    inline unsigned int hashFunction(unsigned int key) const {
+        return key & MASK;
     }
 
     void insert(unsigned int key, int value) {
         unsigned int idx = hashFunction(key);
-        while (status[idx] && table[idx].key != key) {
-            idx = (idx + 1) % TABLE_SIZE;
+        while (table[idx].key != EMPTY_KEY && table[idx].key != key) {
+            idx = (idx + 1) & MASK;
         }
         table[idx].key = key;
         table[idx].value = value;
-        status[idx] = 1;
     }
 
-    bool get(unsigned int key, int& value_out) {
+    bool get(unsigned int key, int& value_out) const {
         unsigned int idx = hashFunction(key);
         unsigned int start = idx;
-        while (status[idx]) {
+        while (table[idx].key != EMPTY_KEY) {
             if (table[idx].key == key) {
                 value_out = table[idx].value;
                 return true;
             }
-            idx = (idx + 1) % TABLE_SIZE;
+            idx = (idx + 1) & MASK;
             if (idx == start) break; // full cycle
         }
         return false;
@@ -63,12 +59,12 @@ public:
     bool update(unsigned int key, int new_value) {
         unsigned int idx = hashFunction(key);
         unsigned int start = idx;
-        while (status[idx]) {
+        while (table[idx].key != EMPTY_KEY) {
             if (table[idx].key == key) {
                 table[idx].value = new_value;
                 return true;
             }
-            idx = (idx + 1) % TABLE_SIZE;
+            idx = (idx + 1) & MASK;
             if (idx == start) break;
         }
         return false;
@@ -82,16 +78,16 @@ int main() {
 
     cout << "Inserting 100 million key-value pairs...\n";
     for (unsigned int i = 0; i < NUM_INSERTS; ++i) {
-        ht.insert(i, i * 3);
-        if (i % 10000000 == 0) {
-            cout << i / 1000000 << "M inserted...\n";
+        ht.insert(i, i << 1); // faster than i * 2 or i * 3
+        if ((i & ((1 << 24) - 1)) == 0) {  // every ~16 million
+            cout << (i / 1000000) << "M inserted...\n";
         }
     }
     cout << "Insertion complete.\n";
 
     cout << "Reading & updating 10 random keys...\n";
     srand(time(NULL));
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         unsigned int key = rand() % NUM_INSERTS;
         int value;
         if (ht.get(key, value)) {
