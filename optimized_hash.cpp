@@ -2,101 +2,97 @@
 #include <cstdlib>
 #include <ctime>
 
-using namespace std;
-
-const unsigned int TABLE_SIZE = 1 << 28;  // 268,435,456 slots
-const unsigned int MASK = TABLE_SIZE - 1;
-const unsigned int EMPTY_KEY = 0xFFFFFFFF; // A key that will never be used
-
-struct HashEntry {
-    unsigned int key;
-    int value;
-};
+const int TABLE_SIZE = 200000003; // A large prime number > 100 million for low collision rate
+//const int TABLE_SIZE =   1000000;
 
 class HashTable {
 private:
-    HashEntry* table;
+    int* keys;
+    int* values;
+    bool* occupied;
+
+    int hash(int key) {
+        return key % TABLE_SIZE;
+    }
 
 public:
     HashTable() {
-        table = new HashEntry[TABLE_SIZE];
-        for (unsigned int i = 0; i < TABLE_SIZE; ++i) {
-            table[i].key = EMPTY_KEY;  // mark as empty
-        }
+        keys = new int[TABLE_SIZE];
+        values = new int[TABLE_SIZE];
+        occupied = new bool[TABLE_SIZE]{false};
+
     }
 
     ~HashTable() {
-        delete[] table;
+        delete[] keys;
+        delete[] values;
+        delete[] occupied;
     }
 
-    inline unsigned int hashFunction(unsigned int key) const {
-        return key & MASK;
-    }
-
-    void insert(unsigned int key, int value) {
-        unsigned int idx = hashFunction(key);
-        while (table[idx].key != EMPTY_KEY && table[idx].key != key) {
-            idx = (idx + 1) & MASK;
+    void insert(int key, int value) {
+        int idx = hash(key);
+        while (occupied[idx] && keys[idx] != key) {
+            idx = (idx + 1) % TABLE_SIZE; // Linear probing
         }
-        table[idx].key = key;
-        table[idx].value = value;
+        keys[idx] = key;
+        values[idx] = value;
+        occupied[idx] = true;
     }
 
-    bool get(unsigned int key, int& value_out) const {
-        unsigned int idx = hashFunction(key);
-        unsigned int start = idx;
-        while (table[idx].key != EMPTY_KEY) {
-            if (table[idx].key == key) {
-                value_out = table[idx].value;
+    bool get(int key, int &value) {
+        int idx = hash(key);
+        int start = idx;
+        while (occupied[idx]) {
+            if (keys[idx] == key) {
+                value = values[idx];
                 return true;
             }
-            idx = (idx + 1) & MASK;
-            if (idx == start) break; // full cycle
+            idx = (idx + 1) % TABLE_SIZE;
+            if (idx == start) break; // Full cycle
         }
         return false;
     }
 
-    bool update(unsigned int key, int new_value) {
-        unsigned int idx = hashFunction(key);
-        unsigned int start = idx;
-        while (table[idx].key != EMPTY_KEY) {
-            if (table[idx].key == key) {
-                table[idx].value = new_value;
-                return true;
+    void update(int key, int newValue) {
+        int idx = hash(key);
+        int start = idx;
+        while (occupied[idx]) {
+            if (keys[idx] == key) {
+                values[idx] = newValue;
+                return;
             }
-            idx = (idx + 1) & MASK;
+            idx = (idx + 1) % TABLE_SIZE;
             if (idx == start) break;
         }
-        return false;
+        // Not found: do nothing (or could insert)
     }
 };
 
 int main() {
+    std::cout << "Initializing hash table...\n";
     HashTable ht;
 
-    const unsigned int NUM_INSERTS = 100000000;
+    const int NUM_INSERTS = 100000000;
+    std::cout << "Inserting 100 million key-value pairs...\n";
 
-    cout << "Inserting 100 million key-value pairs...\n";
-    for (unsigned int i = 0; i < NUM_INSERTS; ++i) {
-        ht.insert(i, i << 1); // faster than i * 2 or i * 3
-        if ((i & ((1 << 24) - 1)) == 0) {  // every ~16 million
-            cout << (i / 1000000) << "M inserted...\n";
-        }
+    for (int i = 0; i < NUM_INSERTS; ++i) {
+        ht.insert(i, i * 2); // value = 2 * key
+        if (i % 10000000 == 0) std::cout << i / 1000000 << " million inserted...\n";
     }
-    cout << "Insertion complete.\n";
 
-    cout << "Reading & updating 10 random keys...\n";
-    srand(time(NULL));
+    std::cout << "Insertions done.\n";
+
+    std::cout << "Performing some read/write operations...\n";
     for (int i = 0; i < 10000; ++i) {
-        unsigned int key = rand() % NUM_INSERTS;
-        int value;
-        if (ht.get(key, value)) {
-            cout << "Key = " << key << ", Value = " << value << "\n";
-            ht.update(key, value + 5);
-            ht.get(key, value);
-            cout << "After update: " << value << "\n";
+        int key = rand() % NUM_INSERTS;
+        int val;
+        if (ht.get(key, val)) {
+            std::cout << "Key " << key << " has value " << val << "\n";
+            ht.update(key, val + 1);
+            ht.get(key, val);
+            std::cout << "Updated value: " << val << "\n";
         } else {
-            cout << "Key not found.\n";
+            std::cout << "Key " << key << " not found!\n";
         }
     }
 
