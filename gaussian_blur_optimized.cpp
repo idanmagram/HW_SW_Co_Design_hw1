@@ -70,21 +70,22 @@ Matrix gaussianBlurParallel(const Matrix &image, int kernelSize, float sigma, in
 }
 
 int main() {
-    Matrix img = {
-            { 10, 20, 30, 40, 50 },
-            { 20, 30, 40, 50, 60 },
-            { 30, 40, 50, 60, 70 },
-            { 40, 50, 60, 70, 80 },
-            { 50, 60, 70, 80, 90 }
-    };
+    const int SIZE = 100;
+    Matrix img(SIZE, vector<float>(SIZE));
 
-    Matrix blurred = gaussianBlurParallel(img, 3, 1.0, 4);  // 4 threads
+    // Fill the image with a diagonal gradient
+    for (int i = 0; i < SIZE; ++i)
+        for (int j = 0; j < SIZE; ++j)
+            img[i][j] = (i + j) % 256;
 
-    cout << "Blurred Image:\n";
-    for (auto &row : blurred) {
-        for (auto val : row)
-            cout << fixed << setprecision(2) << val << " ";
+    Matrix blurred = gaussianBlurParallel(img, 5, 1.5, 8);  // 8 threads for better performance
+
+    cout << "Blurred Image (center 10x10 region):\n";
+    for (int i = 45; i < 55; ++i) {
+        for (int j = 45; j < 55; ++j)
+            cout << fixed << setprecision(2) << blurred[i][j] << " ";
         cout << endl;
     }
+
     return 0;
 }

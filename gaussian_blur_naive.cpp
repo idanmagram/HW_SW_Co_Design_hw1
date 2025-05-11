@@ -55,24 +55,24 @@ vector<vector<float>> applyGaussianBlur(const vector<vector<float>>& image, int 
 }
 
 int main() {
-    // Example: 5x5 grayscale image
-    vector<vector<float>> image = {
-            { 10, 20, 30, 40, 50 },
-            { 20, 30, 40, 50, 60 },
-            { 30, 40, 50, 60, 70 },
-            { 40, 50, 60, 70, 80 },
-            { 50, 60, 70, 80, 90 }
-    };
+    const int SIZE = 100;
+    vector<vector<float>> image(SIZE, vector<float>(SIZE));
 
-    int kernelSize = 3;
-    float sigma = 1.0;
+    // Fill the 100x100 image with gradient values
+    for (int i = 0; i < SIZE; ++i)
+        for (int j = 0; j < SIZE; ++j)
+            image[i][j] = (i + j) % 256;  // Example pattern
+
+    int kernelSize = 5;
+    float sigma = 1.5;
 
     auto blurred = applyGaussianBlur(image, kernelSize, sigma);
 
-    cout << "Blurred Image:\n";
-    for (const auto& row : blurred) {
-        for (float val : row) {
-            printf("%6.2f ", val);
+    // Print only a portion to avoid flooding the terminal
+    cout << "Blurred Image (center 10x10):\n";
+    for (int i = 45; i < 55; ++i) {
+        for (int j = 45; j < 55; ++j) {
+            printf("%6.2f ", blurred[i][j]);
         }
         cout << "\n";
     }
