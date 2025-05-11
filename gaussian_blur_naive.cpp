@@ -55,7 +55,7 @@ vector<vector<float>> applyGaussianBlur(const vector<vector<float>>& image, int 
 }
 
 int main() {
-    const int SIZE = 10000;
+    const int SIZE =  10000;
     vector<vector<float>> image(SIZE, vector<float>(SIZE));
 
     // Fill the 10000x10000 image with gradient values

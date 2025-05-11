@@ -66,7 +66,7 @@ void blurRegion(const Matrix &image, Matrix &output, const Matrix &kernel,
                     acc += image[ni][nj] * kernel[ki][kj];
                 }
             }
-            output[i][j] = acc;
+            output[i][j]  = acc;
         }
     }
 }
