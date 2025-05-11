@@ -70,7 +70,7 @@ Matrix gaussianBlurParallel(const Matrix &image, int kernelSize, float sigma, in
 }
 
 int main() {
-    const int SIZE = 1000;
+    const int SIZE = 10000;
     Matrix img(SIZE, vector<float>(SIZE));
 
     // Fill the image with a diagonal gradient
