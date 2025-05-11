@@ -58,7 +58,7 @@ int main() {
     const int SIZE = 10000;
     vector<vector<float>> image(SIZE, vector<float>(SIZE));
 
-    // Fill the 100x100 image with gradient values
+    // Fill the 10000x10000 image with gradient values
     for (int i = 0; i < SIZE; ++i)
         for (int j = 0; j < SIZE; ++j)
             image[i][j] = (i + j) % 256;  // Example pattern
