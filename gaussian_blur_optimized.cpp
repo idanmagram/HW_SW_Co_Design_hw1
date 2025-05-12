@@ -51,21 +51,6 @@ void blurRegion(const Matrix &image, Matrix &output, const Matrix &kernel,
                     acc += image[ni][nj] * kernel[ki][kj];
 
                 }
-                 /*
-                for (int kj = 0; kj < kSize; ++kj) {
-                    int ni = i + ki - kHalf;
-                    int nj = j + kj - kHalf;
-
-                    // Manually clamp ni and nj to valid ranges
-                    if (ni < 0) ni = 0;
-                    else if (ni >= H) ni = H - 1;
-
-                    if (nj < 0) nj = 0;
-                    else if (nj >= W) nj = W - 1;
-
-                    acc += image[ni][nj] * kernel[ki][kj];
-                }
-                  */
             }
             output[i][j]  = acc;
         }
