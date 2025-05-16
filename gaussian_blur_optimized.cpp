@@ -4,31 +4,7 @@
 #include <thread>
 #include <iomanip>
 #include <algorithm>  // for std::clamp
-
-using namespace std;
-
-using Matrix = vector<vector<float>>;
-
-// Generate Gaussian kernel
-Matrix gaussianKernel(int size, float sigma) {
-    Matrix kernel(size, vector<float>(size));
-    float sum = 0.0f;
-    int half = size / 2;
-
-    for (int i = 0; i < size; ++i)
-        for (int j = 0; j < size; ++j) {
-            int x = i - half;
-            int y = j - half;
-            float val = exp(-(x * x + y * y) / (2 * sigma * sigma));
-            kernel[i][j] = val;
-            sum += val;
-        }
-
-    for (auto &row : kernel)
-        for (auto &v : row) v /= sum;
-
-    return kernel;
-}
+#include "utils.h"
 
 // Blur a region of the image
 void blurRegion(const Matrix &image, Matrix &output, const Matrix &kernel,
@@ -82,25 +58,22 @@ Matrix gaussianBlurParallel(const Matrix &image, int kernelSize, float sigma, in
 }
 
 int main() {
-    const int SIZE = 10000;
-    Matrix img(SIZE, vector<float>(SIZE));
+    const int kernelSize = 5;
+    const float sigma = 5;
 
-    // Fill the image with a simple diagonal gradient
-    for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j)
-            img[i][j] = static_cast<float>((i + j) % 256);
+    Matrix image = generateImage(SIZE);
 
-    // Apply Gaussian blur
-    Matrix blurred = gaussianBlurParallel(img, 5, 1.5f, 8);
+    auto blurred = gaussianBlurParallel(image, kernelSize, sigma, 16);
 
-    // Print center 10x10 region
-    cout << "Blurred Image (center 10x10 region):\n";
-    int mid = SIZE / 2;
-    for (int i = mid - 5; i < mid + 5; ++i) {
-        for (int j = mid - 5; j < mid + 5; ++j)
-            cout << fixed << setprecision(2) << blurred[i][j] << " ";
-        cout << "\n";
-    }
+#ifdef PRINT_MODE
+    // Print only a portion to avoid flooding the terminal
+    cout << "Original Image (center 10x10): " << endl;
+    printPartialMatrix(image, 45, 55, 45, 55);
+
+    // Print only a portion to avoid flooding the terminal
+    cout << "Blurred Image (center 10x10): " << endl;
+    printPartialMatrix(blurred, 45, 55, 45, 55);
+#endif
 
     return 0;
 }
