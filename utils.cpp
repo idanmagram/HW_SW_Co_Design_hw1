@@ -3,7 +3,6 @@
 #include <cmath>
 #include <string>
 #include <fstream>
-#include <iomanip>
 
 #include "utils.h"
 
@@ -35,7 +34,6 @@ Matrix gaussianKernel(int size, float sigma) {
 Matrix generateImage(int size) {
     Matrix image(size, Vector(size));
 
-    // Fill the 10000x10000 image with some pattern values
     for (int i = 0; i < size; ++i)
         for (int j = 0; j < size; ++j)
             image[i][j] = (i*j + i + j) % 256;  // Example pattern
@@ -51,12 +49,12 @@ void printMatrix(const Matrix& matrix, const string& filename) {
         cerr << "Failed to open file: " << filename << endl;
         return;
     }
-    file << fixed << setprecision(2);
     for (const auto& row : matrix) {
-        for (int val : row) {
-           file << val << " ";
+        for (auto val : row) {
+            file << fixed << setprecision(2) << val << " ";
         }
         file << endl;
+
     }
     file << endl;
     file.close();

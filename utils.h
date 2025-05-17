@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <iomanip>
 
 constexpr int KERNEL_RADIUS = 2;
 constexpr int KERNEL_SIZE = 2 * KERNEL_RADIUS + 1;
