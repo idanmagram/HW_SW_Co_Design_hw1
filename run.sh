@@ -7,6 +7,8 @@ fi
 
 IMAGE_SIZE=$1
 NUM_THREADS=$2
+
+PERF_FLAGS="-e task-clock,cycles,instructions,cache-references,cache-misses -a -F 1000 -g"
 # REPORT_FLAMEGRAPH=1
 g++ -Wall -Wextra -O2 -std=c++17 -g -o naive_gaussian_blur gaussian_blur_naive.cpp utils.cpp -DIMAGE_SIZE=$IMAGE_SIZE
 g++ -Wall -Wextra -O2 -std=c++17 -pthread -g -o multithreaded_gaussian_blur gaussian_blur_multithreaded.cpp utils.cpp -DIMAGE_SIZE=$IMAGE_SIZE -DNUM_THREADS=$NUM_THREADS
@@ -32,7 +34,7 @@ else
 fi
 
 echo "Perf Naive"
-perf record -e cycles,instructions,cache-references,cache-misses -a -F 1000 -g ./naive_gaussian_blur
+perf record $PERF_FLAGS ./naive_gaussian_blur
 if [ -n "$REPORT_FLAMEGRAPH" ]; then
     perf script > naive.perf
     ../Flamegraph/stackcollapse-perf.pl naive.perf > naive.folded
@@ -43,7 +45,7 @@ else
 fi
 
 echo "Perf Multithreaded"
-perf record -e cycles,instructions,cache-references,cache-misses -a -F 1000 -g ./multithreaded_gaussian_blur
+perf record $PERF_FLAGS ./multithreaded_gaussian_blur
 if [ -n "$REPORT_FLAMEGRAPH" ]; then
     perf script > multithreaded.perf
     ../Flamegraph/stackcollapse-perf.pl multithreaded.perf > multithreaded.folded
@@ -54,7 +56,7 @@ else
 fi
 
 echo "Running SIMD"
-perf record -e cycles,instructions,cache-references,cache-misses -a -F 1000 -g ./simd_gaussian_blur
+perf record $PERF_FLAGS ./simd_gaussian_blur
 if [ -n "$REPORT_FLAMEGRAPH" ]; then
     perf script > simd.perf
     ../Flamegraph/stackcollapse-perf.pl simd.perf > simd.folded

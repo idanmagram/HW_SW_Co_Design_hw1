@@ -51,7 +51,7 @@ void printMatrix(const Matrix& matrix, const string& filename) {
     }
     for (const auto& row : matrix) {
         for (auto val : row) {
-            file << fixed << setprecision(2) << val << " ";
+            file << fixed << setprecision(0) << val << " ";
         }
         file << endl;
 
