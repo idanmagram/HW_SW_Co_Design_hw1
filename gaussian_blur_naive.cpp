@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm>
+
 #include "utils.h"
 
 // Apply Gaussian Blur via convolution
@@ -9,7 +11,7 @@ Matrix applyGaussianBlur(const Matrix& image, int kernelSize, float sigma) {
     int width = image[0].size();
     int half = kernelSize / 2;
     Matrix kernel = gaussianKernel(kernelSize, sigma);
-    Matrix output(height, vector<float>(width, 0));
+    Matrix output(height, Vector(width, 0));
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -18,9 +20,9 @@ Matrix applyGaussianBlur(const Matrix& image, int kernelSize, float sigma) {
                 for (int kj = -half; kj <= half; kj++) {
                     int ni = i + ki;
                     int nj = j + kj;
-                    if (ni >= 0 && ni < height && nj >= 0 && nj < width) {
-                        sum += image[ni][nj] * kernel[ki + half][kj + half];
-                    }
+                    ni = clamp(ni, 0, height - 1);
+                    nj = clamp(nj, 0, width - 1);
+                    sum += image[ni][nj] * kernel[ki + half][kj + half];
                 }
             }
             output[i][j] = sum;
@@ -30,23 +32,14 @@ Matrix applyGaussianBlur(const Matrix& image, int kernelSize, float sigma) {
     return output;
 }
 
-int main() {
-    const int kernelSize = 5;
-    const float sigma = 5;
+int main(int argc, char* argv[]) {
+    Matrix image = generateImage(IMAGE_SIZE);
 
-    Matrix image = generateImage(SIZE);
+    auto blurred = applyGaussianBlur(image, KERNEL_SIZE, KERNEL_SIGMA);
 
-    auto blurred = applyGaussianBlur(image, kernelSize, sigma);
-
-#ifdef PRINT_MODE
-    // Print only a portion to avoid flooding the terminal
-    cout << "Original Image (center 10x10): " << endl;
-    printPartialMatrix(image, 45, 55, 45, 55);
-
-    // Print only a portion to avoid flooding the terminal
-    cout << "Blurred Image (center 10x10): " << endl;
-    printPartialMatrix(blurred, 45, 55, 45, 55);
-#endif
-
+    if (argc == 3) {
+        printMatrix(image, string(argv[1]));
+        printMatrix(blurred, string(argv[2]));
+    }
     return 0;
 }

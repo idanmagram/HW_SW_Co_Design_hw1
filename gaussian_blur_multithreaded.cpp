@@ -57,23 +57,14 @@ Matrix gaussianBlurParallel(const Matrix &image, int kernelSize, float sigma, in
     return output;
 }
 
-int main() {
-    const int kernelSize = 5;
-    const float sigma = 5;
+int main(int argc, char* argv[]) {    
+    Matrix image = generateImage(IMAGE_SIZE);
 
-    Matrix image = generateImage(SIZE);
+    auto blurred = gaussianBlurParallel(image, KERNEL_SIZE, KERNEL_SIGMA, NUM_THREADS);
 
-    auto blurred = gaussianBlurParallel(image, kernelSize, sigma, 16);
-
-#ifdef PRINT_MODE
-    // Print only a portion to avoid flooding the terminal
-    cout << "Original Image (center 10x10): " << endl;
-    printPartialMatrix(image, 45, 55, 45, 55);
-
-    // Print only a portion to avoid flooding the terminal
-    cout << "Blurred Image (center 10x10): " << endl;
-    printPartialMatrix(blurred, 45, 55, 45, 55);
-#endif
-
+    if (argc == 3) {
+        printMatrix(image, string(argv[1]));
+        printMatrix(blurred, string(argv[2]));
+    }
     return 0;
 }
